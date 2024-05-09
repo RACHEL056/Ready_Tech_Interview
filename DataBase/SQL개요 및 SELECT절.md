@@ -123,3 +123,26 @@ SELECT ~ FROM ~ WHERE ~ GROUP BY ~ HAVING ~ ORDER BY ~
     
 - ORDER BY로 Sorting 가능 오름차순 Default, 내림차순도 가능(DESC)
 - 집단 함수 - AVG, MAX …
+- 집합 연산 - 두 릴레이션이 input
+    - UNION(합집합), EXCEPT(차집합), INTERSECT(교집합), UNION ALL(중복 허용 합집합), EXCEPT ALL(중복 허용 차집합), INTERSECT ALL
+- 조인
+    - 두 개 이상의 릴레이션으로 연관된 튜플들을 결합
+    - 조인 조건이 없을 경우 카티션 곱 생성
+    - 자체 조인(self joint) - 한 릴레이션에 속하는 튜플을 동일한 릴레이션에 속하는 튜플과 조인
+        
+        ```sql
+        SELECT E.EMPNAME, M.EMPNAME
+        FROM EMPLOYEE E, EMPLOYEE M //이때 한가지 릴레이션에 다른 이름을 줌
+        WHERE E.MANAGER = M.EMPNO;
+        ```
+        
+- 중첩 질의(부질의 subquery) - WHERE 절에 다시 SELECT … FROM … WHERE 형태로 포함됨
+    - 하나의 스칼라 값만 나오는 질의
+    - 절차적 성격 → IN, ANY, ALL
+    - 여러 애트리뷰트들로 이루어진 릴레이션 반환 경우
+        
+        → EXISTS(튜플이 하나라도 있는 것)
+        
+    - 상관 중첩 질의(correlated nested query) - 안쪽 subquery가 바깥쪽 query와 상관 관계
+    
+    ** nested loop 일 경우 튜플의 수가 적은 릴레이션 기준으로 카티션 곱이 진행되야 성능이 좋다
