@@ -31,3 +31,27 @@ SQL → 호스트 언어의 완전한 표현력을 갖고 있지 않기 때문�
 따라서 C, C++ 등의 언어로 작성하는 프로글매에 SQL 삽입 ⇒ 호스트 언어에 포함되는 SQL = 내포된 SQL
 
 - C 언어에 SQL내포 = ESQL/C
+- 커서(cursor) - 한번에 한 튜플씩 가져오는 수단
+    - DECLARE을 통해 커서를 정의 후 OPEN으로 질의 수행, FETCH로 다음 튜플로 이동하고 CLOSE로 닫게 된다.
+- DBMS와 프로그래밍 언어 사이에 소통하는 공간 필요: SQLCA(SQL Communications Area)
+    - SQLCA 데이터 구조 중 가장 널리 사용되는 필드 → SQLCODE 변수
+        
+        이때 SQLCODE 값이 0 이면 마지막에 내포된 SQL 문이 성공적으로 끝났음을 의미
+        
+        ```sql
+        EXEC SQL DECLARE c1 CURSOR FOR
+            SELECT empno, enpname, title, manager, salary, dno
+            FROM employee;
+            EXEC SQL OPEN c1;
+            while (SQLCODE == 0)
+            {
+            EXEC SQL
+                FETCH c1 INTO :eno, :name, :title, :manager, :salary, :dno;
+                if (SQLCODE == 0)
+                    printf("SUCCESSFUL");
+        }
+        EXEC SQL CLOSE c1;
+        
+        //따라서 데이터 성공적으로 가져올 수 있으면 while 문을 돌고 이후 가져오지 못할 경우 SQLCODE
+        //값이 1이 되므로 반복문을 빠져나오게 된다.
+        ```
