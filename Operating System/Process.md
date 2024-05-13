@@ -89,3 +89,48 @@
         여유 공간 마련을 위해 프로세스를 통째로 메모리 → 디스크로 보냄(중간)
         
         memory를 주는 문제 - memory에 올라가 있는 프로그램 수 조정(degree of multiprogramming)
+        
+        
+### Thread: 프로세스 안의 CPU 수행 단위가 여려개 있는 경우
+
+= lightweight process
+
+메모리 주소 공간, 프로세스 상태, 프로세스가 사용하는 자원들을 공유
+
+CPU 수행과 관련된 정보(Program counter, register, stack)만 별도로 가짐
+
+구성 - program counter, register set, stack space
+
+공유하는 부분(=task) - code section, data section, OS resources
+
+- 다중 스레드일 경우 하나의 서버 스레드가 blocked 상태 동안에도 동일한 태스크 내의 다른 스레드가 실행되어 빠른 처리 가능
+    
+    ex) 웹 브라우저를 클릭 시 다중 스레드일 경우 먼저 불러온 정보를 사용자에게 보여주는 것이 가능함
+    
+- 동일한 일을 수행하는 다증 스레드가 협력하여 높은 처리율(throughput)과 성능 향상
+    
+    → 자원 절약 (ex) 여러 웹 브라우저를 열 경우)
+    
+- 병렬성을 높일 수 있음 → CPU가 여러 개 달린 컴퓨터
+
+장점
+
+- Responsiveness(응답성)
+- Resource Sharing(자원 공유)
+- Economy(경제성)
+    
+    Process를 만드는 것은 오버헤드가 크지만, 프로세스 안 스레드를 create & CPU switching는 간단
+    
+- Utilization of MP Architectures(Multi Processor)
+
+스레드의 이용
+
+- Kernel Threads : 스레드가 여러개인 것을 운영체제가 알고 있음
+    
+    → Kernel의 지원
+    
+- User Threads : 운영체제가 모르는 상태로 사용자가 관리
+    
+    → Library의 지원
+    
+- Real-time Threads
