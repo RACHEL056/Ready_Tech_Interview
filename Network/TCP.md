@@ -111,3 +111,53 @@ sender 측이 receive 하는 측의 receive buffer의 available space 만큼만 
     1. client는 TCP FIN = 1을 보냄(close 상태)
     2. server에서도 데이터를 다 보낸 경우 FIN을 보냄(
     3. client는 ACK를 보내고 혹시 모르는 상황을 대비해 timed wait 시간동안 기다린 후 closed
+
+### congestion control
+
+Network 능력치와 receiver의 한계 → 둘 중 상태가 더 안좋은 쪽에 맞춰줘야 한다
+
+네트워크가 안 막히게 하기 위해 조절 →  네트워크의 상태를 유추해서 진행
+
+중간 네트워크에서는 알려주지 X 따라서 양 끝단의 상태를 보고 유추
+
+3가지 main phases
+
+1. slow start → 조금씩 보내보면서 시작, 네트워크의 상태를 모르기 때문에 겸손, 하지만 증가하는 속도는 exponential하게 증가함
+    
+    MSS(maximum segment size)단위로 window size 조절
+    
+2. additive increase → threshold를 넘을 경우 linear하게 증가
+3. multiplicative decrease → 패킷 loss가 있을 경우 CongWindow size 절반으로 줄임
+
+대략적인 전송 속도 rate = CongWin / RTT (Bytes/sec)
+
+**TCP Tahoe vs TCP Reno**
+
+Tahoe → packet loss 발생 시 당시의 window size 절반으로 threshold 값을 조정 후 slow start 시작 지점에서 다시 시작
+
+** 패킷 유실 감지 
+
+1. timeout → 유실이 큰 상황
+
+2. 3 duplicate ACK → 패킷 하나만 안보내진 사소한 상황
+
+따라서 2번째 상황일 경우
+
+Reno → window size 줄인 후 threshold 값에서 시작
+
+<aside>
+💡  초기 threshold는 어떻게 잡을까?
+
+이는 구현하는 사람에 따라 다르다. 이후 보정하는 방법만 있기 때문에 터지고 난 후 계속 조정해 나가게 된다.
+
+</aside>
+
+### TCP Fairness
+
+과연 여러 TCP connection들은 공평하게 대역폭을 나눠 가질까?
+
+Yes
+
+![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/723c7bb9-e0a4-4b40-b307-256af13a4052/6f05908b-8caa-47a0-92d1-4c560e7c8efc/Untitled.png)
+
+하지만 TCP 연결 관점에서는 fair 하지만 사용자 입장에서는 TCP connection을 많이 연 사람이 더 많은 이득을 가져가게 된다.
