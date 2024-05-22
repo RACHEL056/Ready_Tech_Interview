@@ -154,9 +154,7 @@ Reno → window size 줄인 후 threshold 값에서 시작
 
 ### TCP Fairness
 
-과연 여러 TCP connection들은 공평하게 대역폭을 나눠 가질까?
-
-Yes
+과연 여러 TCP connection들은 공평하게 대역폭을 나눠 가질까? Yes
 
 ![Untitled](https://prod-files-secure.s3.us-west-2.amazonaws.com/723c7bb9-e0a4-4b40-b307-256af13a4052/6f05908b-8caa-47a0-92d1-4c560e7c8efc/Untitled.png)
 
