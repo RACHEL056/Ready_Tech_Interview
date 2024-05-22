@@ -38,3 +38,73 @@
 ### The critical-section problem
 
 critical section = 각 프로세스에서 공유 데이터를 접근하는 코드
+entry section과 exit section을 통해 lock을 걸게 된다
+
+**Algorithm**
+
+충족 조건
+
+1. Mutual Exclusion(상호 배제): 한 프로세스 critical section 수행 시 다른 프로세스 접근X
+2. Progress(진행): 아무도 critical section 있지 않은 상태에서는 프로세스 접근 가능하도록
+3. Bounded Waiting(유한 대기): 요청이 허용될 때까지 대기하는 시간이 유한. starvationX
+
+Algorithm 1
+
+```c
+int turn;
+initially turn = 0
+```
+
+turn을 통해 critical section에 들어가는 프로세스를 정해준다
+
+critical section을 항상 교대로 들어가게 되어있음 → 프로세스가 critical section에 들어가려는 빈도가 다를경우 문제 발생(progress 조건X)
+
+Algorithm 2
+
+```c
+boolean flag[2];
+initially flag[모두] = false
+```
+
+flag를 통해 critical section에 들어가고 싶다는 상태 의미
+
+아무도 못들어가고 끊임 없이 양보하는 상황이 생길 수 있음(progress 조건X)
+
+Algorithm 3(Peterson’s Algorithm)
+
+1과 2를 섞은 알고리즘
+
+```c
+do {
+    flag[i] = true;
+    turn = j
+    while (flag[j] && turn == j);
+    critical section
+    flas[i] = false;
+    remainder section
+} while(1);
+```
+
+3가지 조건 모두 만족
+
+두가지 프로세스가 같이 들어가려 할 때 turn을 통해 들어가게 해줌
+
+문제점: busy waiting(= spin lock) → 계속 CPU와 memory를 쓰면서 wait 하게 됨
+
+### Synchronization Hardware ⇒ Test & Modify
+
+하드웨어적으로 atomic하게 수행할 수 있도록 지원
+
+Test_and_set(a) → 1. Read: 읽은 후 2:TRUE로 값을 바꿔줌
+
+```c
+//boolean lock = false;
+
+//Process Pi
+    do {
+        while(Test_andSet(lock));
+        critical section
+        lock = false;
+        remainder section
+    }
+```
