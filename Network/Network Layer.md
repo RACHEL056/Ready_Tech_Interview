@@ -99,3 +99,81 @@ ID를 통해 동일한 packet 확인
 fragflag로 뒤에 fragmentation 패킷 유무(1이면 존재 0 이면 X)
 
 offset으로 순서 확인(/8로 필드 수를 줄임)
+
+### ICMP: Internet control message protocol
+
+source한테 어떤 일이 생겼는지를 알려주는 메세지(네트워크에서 생성되는 메세지) 운반 프로토콜
+
+네트워크 진단을 위해 사용됨
+
+### IPv6
+
+주소: 128bit
+
+Tunneling: IPv4 → IPv6 새로운 형태의 패킷(IPv6)을 구 형식(IPv4)로 변형하여 인식 가능하게 함
+
+### Routing Algorithm
+
+Forwarding은 forwarding table lookup을 하는 행위
+
+Forwarding table은 routing에 의해 만들어짐
+
+⇒ 목표: 목적지까지의 최소의 cost 경로를 찾는 것, 목적지까지 최단 경로를 찾는 것
+
+1. 네트워크가 네트워크 구조 그림(graph)을 다 아는 경우
+    
+    → link state algorithm
+    
+2. 이웃의 정보만 아는 경우
+    
+    → distance vector algorithm
+    
+
+**Link State Algorithm**
+
+모든 링크가 link state를 broadcast 해야함 → Dijkstra’s algorithm 사용하여 계산
+
+다음과 같은 다익스트라 알고리즘을 각 노드 기준에서 계산하여 forwarding table을 생성
+
+복잡도: O(n^2)
+
+Oscillations possible → 트래픽에 따라 왔다갔다 하는 현상 발생
+
+```c
+Initialization:
+//시작하는 노드 "u", N'는 최단 경로가 결정된 노드 집합
+N' = {u} 
+for all nodes v //이웃된 노드면 값 입력, 아니면 무한대 입력
+    if v adjacent to u
+        then D(v) = c(u,v)
+    else D(v) = 무한대
+
+Loop(반복문)
+find w not in N' such that D(w) is a minimum
+add w in N'
+update D(v) for all v adjacent to w and not in N'
+    //기존의 경로와 다른 노드를 거쳐서 가는 경우 비교
+    D(v) = min(D(v), D(w) + c(w,v))
+until all nodes in N'
+```
+
+⇒ 현실적으로 전세계적인 broadcast하기에는 라우터의 양이 방대하기 때문에 하나의 네트워크 안(하나의 주체로만 관리 가능한 단위, 하나의 도메인)에서만 이루어진다
+
+<aside>
+💡 네트워크 끼리의 routing algorithm은 별도로 존재
+
+</aside>
+
+**Distance Vector Algorithm**
+
+이웃과만의 정보 교환(분산 처리 시스템) → 직관적이지 않음
+
+Bellman-Ford equation(dynamic programming)
+
+**`dx(y) = min{c(x,v) + dv(y)}` ⇒ recursion**
+
+dx(y) → source x에서 y까지의 최소 경로 cost
+
+c(x,v) → 이웃 v의 cost
+
+dv(y) → v에서 y까지의 최소 경로 cost
