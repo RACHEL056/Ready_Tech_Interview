@@ -176,4 +176,6 @@ dx(y) → source x에서 y까지의 최소 경로 cost
 
 c(x,v) → 이웃 v의 cost
 
-dv(y) → v에서 y까지의 최소 경로 cost
+**dv(y) → v에서 y까지의 최소 경로 cost(v는 y,w,z,…등 노드들까지의 거리를 배열(distance vector)로 가지고 있어 x에게 전달해줌)
+⇒ 자신의 distance vector가 변경될 경우 이웃 노드에게 전달해줌
+따라서 부분적인 정보가 전파되면서 routing table이 만들어짐
