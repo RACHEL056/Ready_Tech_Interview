@@ -108,3 +108,103 @@ Test_and_set(a) → 1. Read: 읽은 후 2:TRUE로 값을 바꿔줌
         remainder section
     }
 ```
+
+### Semaphores
+
+“추상화” → 논리적으로 정의하는 것이지 실제로 구현되는 것과 별개의 자료형
+
+Semaphore **S** 
+
+integer variable
+가정: 두 가지 atomic 연산에 의해서만 접근 가능
+
+```c
+//자원을 가져가는 연산, Lock을 거는 과정
+P(S):
+while(S<=0) do no-op; //wait 자원이 가져가서 없는 상태이기 때문
+S--; //자원이 양수가 되는 경우 자원을 가져가서 사용하는 것
+//이때 양수가 될 때까지 기다려야 하므로 => busy wait 문제 발생
+
+//자원을 다 사용한 후 내놓는 연산, Lock을 푸는 과정
+V(S):
+S++ //자원 반납
+```
+
+**Critical Section of n Processes**
+
+busy-wait를 해결하기 위해 critical section을 활용
+
+```c
+Synchronization variable
+semaphore mutex; //초기에 1: 1개가 CS에 들어갈 수 있다
+
+Process Pi;
+do{
+    P(mutex);
+    critical section
+    V(mutex);
+    remainder section
+} while(1);
+```
+
+**⇒ Block/Wakeup Implementation**
+
+```c
+//Semaphore 정의
+typedef struct
+{ int value;
+    struct process *L; //wait queue
+} Semaphore
+```
+
+block → block을 호출한 프로세스를 suspend시키고, 이 프로세스의 PCB를 semaphore 대한 wait queue에 넣어둠
+
+wakeup(P) → block된 프로세스 P를 wakeup, 프로세스의 PCB를 ready queue로 옮김
+
+```c
+//자원의 여분이 있을 경우 획득, 아닐경우 block
+//S.value는 자원의 개수를 세는 의미기 보다 자원을 기다리는 프로세스가 있는 상황인지 여분이 있는 상황인지 사용
+P(S):
+
+S.value--;
+if(S.vlaue<0) //음수일 경우 자원 여분 없는 경우
+{
+    add this process to S.L;
+    block();
+}
+```
+
+```c
+V(S):
+
+S.vlaue++;
+if(S.value<=0){ //자원을 내놓았는데도 0 이하인 경우는 다른 프로세스가 큐에 존재한다는 것
+    remove a process P from S.L;
+    wakeup(P);
+}
+```
+
+**Busy-wait vs Block/wakeup**
+
+critical section 길이가 긴 경우  → Block/Wakeup
+
+critical section 길이가 매우 짧은 경우 → Block/Wakeup 오버헤드가 busy-wait 오버헤드보다 더 커질 수 있음(active 상태를 wait 상태로 바꿔야 하기 때문)
+
+**Type of Semaphore**
+
+- Counting semaphore
+    
+    도메인이 0 이상인 임의의 정수 값, resource counting에 사용
+    
+- Binary semaphore(=mutex)
+    
+    0,1값만 가질 수 있는 경우, mutual exclusion(lock/unlock)에 사용
+    
+
+**유의할 점**
+
+- Deadlock: 둘 이상의 프로세스가 서로 상대방에 의해 충족될 수 있는 event 무한히 기다리는 현상
+    
+    → 다른 프로세스가 하나씩 semaphore을 차지하고 상대의 것을 요구하는 상황
+    
+- starvation: indefinite blocking. 프로세스가 suspend 된 후 세마포어 큐에서 빠져나갈 수 없는 현상
