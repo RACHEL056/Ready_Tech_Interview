@@ -208,3 +208,187 @@ critical section 길이가 매우 짧은 경우 → Block/Wakeup 오버헤드가
     → 다른 프로세스가 하나씩 semaphore을 차지하고 상대의 것을 요구하는 상황
     
 - starvation: indefinite blocking. 프로세스가 suspend 된 후 세마포어 큐에서 빠져나갈 수 없는 현상
+
+### Problems of Synchronization
+
+1. Bounded-Buffer Problem(Producer-Consumer Problem)
+2. Readers and Writers Problem
+3. Dining-Philosophers Problem
+
+**Bounded-Buffer Problem**
+
+공유 메모리의 버퍼에 데이터를 생산하는 “Producer”, 데이터를 사용하는 “Consumer”이 존재
+
+shared data → buffer 자체 및 buffer 조작 변수(empty/full buffer 시작 위치)
+
+이때 필요한 semaphore
+
+1. 동시에 공유 buffer에 접근하는 것을 막기 위해 공유 버퍼 전체에 lock 하는 semaphore(mutual exclusion)
+2. 버퍼가 다 차있거나 비어있을 때를 알 수 있는 가용 자원을 세는 semaphore (resource count)
+
+*Semaphore
+
+variables: full=0, empty=n, mutex=1
+
+이때 mutex는 lock을 위한 변수
+
+```c
+Producer
+
+do{ ...
+produce an item in x
+...
+P(empty); //buffer에 여유공간이 있는지 확인
+P(mutex); //여유 공간이 있을 때 mutex 값으로 buffer에 lock 걸기
+...
+add x to buffer
+...
+V(mutex); //lock 해제
+V(full); //빈 공간이 하나 없어짐
+}while(1);
+
+Consumer
+
+do{
+
+P(full) //buffer이 비어있는지 확인
+P(mutex); //비어있지 않을 대 자원을 가져오기 위해 lock
+...
+remove an item from buffer to y
+...
+V(mutex); //lock 해제
+V(empty); //buffer에 빈 공간 하나 생김
+...
+consume the item in y
+...
+}while(1);
+```
+
+**Readers-Writers Problem**
+
+Writer만 상호 배제가 필요하며 reader는 동시에 읽어도 상관이 없는 상황
+
+shared data→ DB 자체, readcount;(DB에 접근 중인 reader 수)
+
+*Semaphore
+
+variables: mutex=1, db=1
+
+이때 db는 DB 자체에 lock을 걸기 위한 S, mutex는 reader수를 증가시킬 때 lock 걸기 위한 S
+
+```c
+Writer
+
+P(db);
+...
+writing DB is performed
+...
+V(db);
+
+Reader
+
+P(mutex);
+readcount++;
+if(readcount==1) P(db); //처음으로 읽기 시작하면 writer 접근하지 못하게 db 잠금
+V(mutex);
+...
+reading DB is performed
+...
+P(mutex);
+readcount--;
+if(readcount==0) V(db); //마지막으로 읽고 이후에 읽는 사용자가 없으면 writer 접근 허용
+V(mutex)
+```
+
+이때 writer가 지나치게 기다릴 경우 starvation이 발생할 수 있음
+
+**Dining-Philosophers Problem**
+
+생각하거나 먹는 두가지 행위를 하는 철학자가 원탁에 있음. 이때 먹을때는 왼쪽과 오른쪽의 젓가락을 잡아서 먹어야 함
+
+variable → chopstick[5] (이때 젓가락은 1로 초기화)
+
+```c
+Philosopher i
+
+do{
+P(chopstick[i]);
+P(chopstick[(i+1)%5]);
+...
+eat();
+...
+V(chopstick[i]);
+V(chopstick[(i+1)%5]);
+...
+think();
+...
+}while(1);
+```
+
+이때 문제점
+
+→ deadlock 가능성: 모든 철학자가 동시에 배가 고파져 왼쪽 젓가락을 집어 아무도 오른쪽 젓가락을 가지지 못해 하염없이 기다리는 경우
+
+해결 방안
+
+1. 4명의 철학자만이 테이블에 동시에 앉을 수 있도록(배고픈 사람만 식탁에 앉기)
+2. 젓가락을 두 개 모두 집을 수 있을 때만 젓가락 집기
+3. 비대칭: 착수 철학자는 왼쪽 젓가락부터, 홀수 철학자는 오른쪽 젓가락부터 집기
+
+*Semaphore(2번 경우)
+
+```c
+enum{thinking, hungry, eating} state[5]; // 철학자의 상태
+semaphore self[5]=0; //철학자가 왼쪽, 오른쪽 젓가락을 잡을 수 있는 권한
+semaphore mutex=1; //state는 공유 자원으로 이를 lock 하는 S
+
+Philosopher i
+do{ 
+pickup(i);
+eat();
+putdown(i);
+think();
+}while(1);
+
+void pickup(int i){
+P(mutex);
+state[i]=hungry;
+test(i);
+V(mutex);
+P(self[i]); //test에서 if 조건이 만족이 되지 않으면 wait
+}
+
+//좌우 철학자가 먹는 상태가 아니고 해당 철학자가 배고픈 상태일 때 먹는 권한을 줌
+void test(int i){
+    if (state[(i+4)%5]!= eating && state[i]==hungry && state[(i+1)%5]!=eating) {
+    state[i]=eating;
+    V(self[i]); //이때 권한은 0으로 초기화 되어 있어 V semaphore로 1을 주어 권한을 줌
+    }
+}
+
+void putdown(int i) {
+P(mutex);
+state[i]=thinking;
+test((i+4)%5); //좌우 철학자가 배고픈 상태였는데 못먹어서 기다리는지를 검사
+test((i+1)%5);
+V(mutex);
+}
+```
+
+### Monitor
+
+Semaphore의 문제점
+
+코딩이 힘들다
+
+정확성 입증이 어렵다
+
+자발적 협력이 필요하다
+
+한번의 실수로 모든 시스템에 치명적 영향을 끼친다
+
+⇒ high-level synchronization construct인 “Monitor” 사용
+
+모니터 안에 공유 데이터에 대한 변수를 정의하고 procedure을 정의해둠.
+
+이때 procedure에 동시에 활동 불가능하도록 설정이 되어있어 Lock을 하지 않아도 된다
