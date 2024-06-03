@@ -179,3 +179,47 @@ c(x,v) → 이웃 v의 cost
 **dv(y) → v에서 y까지의 최소 경로 cost(v는 y,w,z,…등 노드들까지의 거리를 배열(distance vector)로 가지고 있어 x에게 전달해줌)
 ⇒ 자신의 distance vector가 변경될 경우 이웃 노드에게 전달해줌
 따라서 부분적인 정보가 전파되면서 routing table이 만들어짐
+
+- Count-to-infinity → poison reverse(reverse path를 막아야 한다)
+    
+    = 이웃에게 값을 넘겨줄 때 결정적 요인을 한 노드에게는 무한대 값을 넘겨준다
+    
+
+### *Hierarchical routing
+
+### **AS(Autonomous System)**
+
+→ 하나의 라우팅 도메인에 대한 자치권을 가진 시스템(각각 ASNs-ASNumbers 가짐)
+
+하나의 네트워크 단위로 생각하면 된다. 삼성, KT, Google은 각각 AS로 이들은 Inter-AS algorithm을 통해 라우팅 이루어짐.
+
+하나의 AS 안에서는 intra-AS algorithm으로 라우팅이 이루어진다.
+
+- Intra-AS algorithm(목적: 최단 경로): OSPF, RIP
+- Inter-AS algorithm(목적: 불분명): BGP
+
+이때 AS마다 위상이 다르다. 이들간의 관계는?
+
+**Customers and Providers**
+
+서비스를 사용하는 AS - customer
+
+서비스를 제공하는 AS - provider
+
+이때 customer은 인터넷에 엑세스 하기 위해 provider에게 돈을 지불
+
+**“Peering” Relationship**
+
+비슷한 체급의 AS끼리의 관계로 돈을 지불하지 않고 서로 교류, 하지만 중간 연결로의 traffic은 허용하지 않음
+
+### BGP-4
+
+BGP= Border Gateway Protocol
+
+*정책 기반(policy based) 라우팅 프로토콜 → 최적화가 비용으로 이루어지지 않음
+
+**ASPATH attribute**
+
+AS Path에 지나가는 AS의 ASNs를 입력하여 element들로 AS hop수를 추정할 수 있다. 또한 어디로 traffic을 거쳐 올지를 결정 가능
+
+**내가 provider위치에 있는 경로를 고르게 된다.(hop수에 상관없이 cost를 최대로 할 수 있는 경로)
