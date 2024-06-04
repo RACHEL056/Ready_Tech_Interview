@@ -392,3 +392,27 @@ Semaphore의 문제점
 모니터 안에 공유 데이터에 대한 변수를 정의하고 procedure을 정의해둠.
 
 이때 procedure에 동시에 활동 불가능하도록 설정이 되어있어 Lock을 하지 않아도 된다
+
+```c
+monitor monitor-name
+{
+    shared variable declarations
+    procedure body P1(...){
+    ...
+    }
+        procedure body P2(...){
+    ...
+    }
+    procedure body Pn(...){
+    ...
+    }
+    {
+        initialization code
+    }
+}
+    
+```
+
+**condition variable**
+
+process를 잠들게 하거나 줄세우기를 하기 위한 변수(wait, signal 연산에 의해서만 접근 가능)
