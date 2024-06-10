@@ -76,3 +76,34 @@ request → allocate → use → release
     
     maximum 으로 평생의 최대 사용량을 선언
     추가로 요청할 자원이 가용 자원에서 모두 충족하는가를 판단 → 성립할 경우 자원 할당
+
+**Deadlock Detection and recovery**
+
+deadlock이 발생할 때까지 조치X
+
+이후 탐지가 되면 resource type 당
+
+single instance → 자원 할당 그래프(점선X cycle이 곧 deadlock을 의미)
+
+multiple instance → banker’s algorithm과 유사한 방법
+
+요청하지 않는 프로세스에 할당된 자원을 회수해 다른 프로세스의 요청에 할당해서 처리
+
+recovory
+
+- process termination
+    
+    deadlock과 관련된 프로세스를 모두 죽이기
+    
+    프로세스 하나씩을 죽여보면서 deadlock cycle이 제거되는지 확인
+    
+- resource preemption
+    
+    비용을 최소화할 피해자 선정 후 자원을 뺏기
+    
+    starvation 문제 가능 → 동일한 프로세스가 계속해서 피해자로 선정
+    
+
+**Deadlock Ignorance**
+
+deadlock이 일어나지 않는다고 생각하고 아무런 조치X
