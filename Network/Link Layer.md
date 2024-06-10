@@ -71,3 +71,51 @@ master controller가 존재해서 순서를 정해줌(master node - slave node)
 token을 가진 사용자만이 데이터를 보낼 수 있다.
 전송이 끝낸 후 토큰을 다른 매체에게 넘기면서 전송
 → 토큰을 잊어버릴 경우 문제 생김
+
+### LANs(Local Area Networks)
+
+GWR에 연결된 여러 매채들의 집합들 이때 매체들을 제어하기 위해 MAC(Medium Access Control)
+
+**Ethernet**
+
+- Physical topology
+    1. bus(버스형): 모든 노드가 같은 도메인에 위치, 한 줄에 여러 매체가 연결
+    2. star(성형): 활성화된 스위치가 중앙에 위치해서 연결되어 매체와 연결
+- Frame structure ⇒ HDR+ IP packet
+- Ethernet을 사용하는 MAC protocol은 CSMA/CD
+
+유선 Ethernet 상황에서 collision이 발생하면 retransmit을 한다 ⇒ 충돌이 발생 안하면 GWR에 도달
+
+**??** collision이 발생했는데 MAC layer에서 충돌을 감지하지 못한다면? (MAC layer ACKS를 사용X)
+→ A——>E로 frame을 보내다가 propagation delay로 충돌 감지X
+
+⇒ frame을 다 보낸 후에도 말을 하는 상태 유지하기 위해 minimum frame size = 64byte
+
+**MAC addresses and ARP(Address Resolution Protocol)**
+
+- 48bit MAC address (24bit 제조회사 + 24bit 인터페이스 고유 #)
+hostname 및 IP address는 바뀔 수 있지만, MAC 주소는 존재 자체로 변경 X
+- Frame에 GWR’s Mac address는 모름 ⇒ IP주소를 통해 이를 알아내야함
+각각의 노드에 ARP table(IP address / MAC address /TTL 매핑 테이블) 존재
+
+ARP request(IP address 포함)로 broadcast를 하여 GWR MAC address 알게됨
+
+**Switches**
+
+link layer device로 연결만 해주는 장치
+
+collision domain을 분리시켜줌
+
+host들에게는 보이지 않음 → host는 ethernet cable만을 알고 있고 이후의 것들은 모르는 상태
+
+-switch forwarding table
+
+이를 통해 스위치에 연결된 매체들 간에 충돌없이 보내줄 수 있음
+
+self-learning을 통해 table 생성 (위치를 모를경우 flood를 통해 위치를 알게됨)
+
+스위치 간에도 연결 가능함
+
+### data center networking
+
+많은 host에게 요청되는 server는 여러 서버를 두어 프로세스를 처리하게 된다
