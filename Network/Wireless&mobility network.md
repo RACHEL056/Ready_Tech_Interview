@@ -94,10 +94,23 @@ AP가 주기적으로 자신의 MAC address를 담은 “beacon message”를 br
 
 DHCP를 통해서 자신의 IP address, subnet mask, GWR IP, Local Name Server IP를 받아옴
 
-### Mobility
+이동 시에,
 
 AP의 connection이 끊길까? = client와 server 사이의 TCP연결(socket간의 유일한 연결)
 
 TCP 연결은 src IP/port#, dest IP/port#로 구분 ⇒ AP가 바뀌는 것으로 IP는 바뀌지 않음
 
 switch table만 update 해주면 됨 !(self-learning)
+
+**cellular internet access**
+
+전체 지역을 cell로 나누어 놓고 하나의 기지국이 이를 관리
+
+MAC protocol - FDMA/TDMA 혼합 (channel division), CDMA(사용자마다 코드를 따로 할당- 자신에게 오는 것 증폭/이외의 것 감소 효과)
+
+### Mobility
+
+네트워크 관점 - spectrum  of mobility
+
+1. 이동할 때마다 자신의 위치를 알려줌
+2. 이동 시 자신의 위치를 특정 장소에 알려주고, 이 장소를 통해 위치를 파악
